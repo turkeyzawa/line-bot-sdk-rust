@@ -1,5 +1,5 @@
 [package]
-name = "line-bot-sdk-rust"
+name = "line_bot_sdk_rust"
 version = "0.1.0"
 authors = ["turkeyzawa <18262943+turkeyzawa@users.noreply.github.com>"]
 edition = "2018"
