@@ -12,6 +12,14 @@ pub struct ClientConfig {
     channel_access_token: &'static str,
 }
 
+impl ClientConfig {
+    pub fn new(channel_access_token: &'static str) -> Self {
+        Self {
+            channel_access_token,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Client {
     config: ClientConfig,
@@ -56,28 +64,5 @@ impl Client {
             .json(&body)
             .send()
             .and_then(Client::parse_message_response)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    extern crate futures;
-    extern crate tokio;
-    use super::super::message::TextMessage;
-    use super::{Client, ClientConfig};
-
-    #[test]
-    fn it_works() {
-        let mut core = tokio::runtime::Runtime::new().unwrap();
-
-        let client = Client::new(ClientConfig {
-            channel_access_token: "test",
-        });
-        let future = client.push_message("hogehoge", vec![TextMessage::new("hogehoge")]);
-
-        match core.block_on(future) {
-            Ok(r) => println!("done! {:?}", r),
-            Err(e) => println!("{:?}", e),
-        };
     }
 }
