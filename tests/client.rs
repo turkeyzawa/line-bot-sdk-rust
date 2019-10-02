@@ -11,7 +11,10 @@ mod tests {
 
     #[test]
     fn it_works() {
-        TestServer::run();
+        println!("Test server is starting...");
+        // FIXME: Server will not start if not to kill process.
+        let server = TestServer::new();
+        println!("Test server has been started.");
 
         let mut core = tokio::runtime::Runtime::new().unwrap();
 
@@ -23,6 +26,8 @@ mod tests {
             Err(e) => println!("{:?}", e),
         };
 
-        TestServer::stop();
+        println!("Test server is stopping...");
+        server.stop();
+        println!("Test server has been stopped.");
     }
 }
