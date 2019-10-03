@@ -12,7 +12,6 @@ mod tests {
     #[test]
     fn it_works() {
         println!("Test server is starting...");
-        // FIXME: Server will not start if not to kill process.
         let server = TestServer::new();
         println!("Test server has been started.");
 
