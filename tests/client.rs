@@ -11,6 +11,8 @@ mod tests {
 
     #[test]
     fn it_works() {
+        std::env::set_var("API_BASE_URL", "http://0.0.0.0:8888");
+
         println!("Test server is starting...");
         let server = TestServer::new();
         println!("Test server has been started.");
@@ -18,7 +20,7 @@ mod tests {
         let mut core = tokio::runtime::Runtime::new().unwrap();
 
         let client = Client::new(ClientConfig::new("hoge"));
-        let future = client.push_message("hogehoge", vec![TextMessage::new("hogehoge")]);
+        let future = client.push_message("hogehoge", vec![TextMessage::new("hogehoge", false)]);
 
         match core.block_on(future) {
             Ok(r) => println!("done! {:?}", r),

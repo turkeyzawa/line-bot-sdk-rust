@@ -20,8 +20,9 @@ impl TestServer {
         std::thread::spawn(move || {
             let sys = actix::System::new("http-server");
 
+            let host = std::env::var("API_BASE_URL").unwrap();
             let addr = HttpServer::new(|| App::new().route("/", web::get().to(index)))
-                .bind("0.0.0.0:10010")
+                .bind(host.replace("https://", "").replace("http://", ""))
                 .unwrap()
                 .shutdown_timeout(5)
                 .start();

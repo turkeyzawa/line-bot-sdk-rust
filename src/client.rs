@@ -6,6 +6,7 @@ use super::response::MessageAPIResponse;
 use futures::prelude::*;
 use reqwest::r#async::{Client as ReqwestClient, Response};
 pub use reqwest::Error;
+use std::env;
 
 #[derive(Clone)]
 pub struct ClientConfig {
@@ -24,24 +25,27 @@ impl ClientConfig {
 pub struct Client {
     config: ClientConfig,
     http_client: ReqwestClient,
-    host: &'static str,
+    host: String,
 }
 
 impl Client {
     fn parse_message_response(res: Response) -> Result<MessageAPIResponse, Error> {
-        let request_id = match res.headers().get(LINE_REQUEST_ID_HTTP_HEADER_NAME) {
-            Some(header_val) => match header_val.to_str() {
-                Ok(val) => Some(val.to_string()),
-                _ => None,
-            },
-            None => None,
-        };
-        Ok(MessageAPIResponse::new(request_id))
+        res.error_for_status().map(|res| {
+            let request_id = match res.headers().get(LINE_REQUEST_ID_HTTP_HEADER_NAME) {
+                Some(header_val) => match header_val.to_str() {
+                    Ok(val) => Some(val.to_string()),
+                    _ => None,
+                },
+                None => None,
+            };
+            MessageAPIResponse::new(request_id)
+        })
     }
 
     pub fn new(config: ClientConfig) -> Self {
-        // FIXME: Dummy URL
-        let host = "https://ptsv2.com/t/wq1jm-1569689108";
+        let host = env::var("API_BASE_URL")
+            .or::<env::VarError>(Ok(String::from("https://api.line.me/v2/bot/")))
+            .unwrap();
         let http_client = ReqwestClient::builder()
             .build()
             .expect("failed to create http client.");
@@ -60,7 +64,7 @@ impl Client {
     ) -> impl Future<Item = MessageAPIResponse, Error = Error> {
         let body = SendMessage::new(to, messages);
         self.http_client
-            .post(&format!("{}/post", self.host))
+            .post(&format!("{}/message/push", self.host))
             .json(&body)
             .send()
             .and_then(Client::parse_message_response)
